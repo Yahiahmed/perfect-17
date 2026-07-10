@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>July 10 - The Birth of a Princess</title>
+    
+    <!-- Google Fonts: Cairo for digital modern look, Amiri for elegant Arabic calligraphy -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS for layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP for advanced animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* Vibrant, energetic, light mode base */
+            background-color: #fdfbfb;
+            background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            color: #1f2937; /* Dark gray for modern text */
+            font-family: 'Cairo', sans-serif;
+            transition: background 3s ease;
+        }
+
+        /* The bright, energetic, colourful theme applied when time travels back */
+        body.golden-era {
+            background-image: linear-gradient(120deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%);
+            animation: gradientShift 15s ease infinite alternate;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .hidden-layer {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        /* Calligraphy styling for the vibrant new poem */
+        .poem-text {
+            font-family: 'Amiri', serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.8;
+            text-align: center;
+            /* Deep, energetic magenta/purple to stand out on the bright background */
+            color: #4c1d95; 
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 255, 255, 0.6);
+            opacity: 0;
+            transform: translateY(30px);
+            margin-bottom: 2rem;
+            will-change: transform, opacity;
+        }
+
+        .digital-clock {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            color: #0ea5e9; /* Energetic cyan/blue */
+            text-shadow: 0 0 30px rgba(14, 165, 233, 0.4);
+            text-transform: uppercase;
+        }
+
+        .digital-clock.golden {
+            color: #be185d; /* Vibrant pink/magenta for the birthday era */
+            text-shadow: 0 0 40px rgba(190, 24, 93, 0.5);
+        }
+
+        .btn-start {
+            padding: 16px 40px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 3px solid #0ea5e9;
+            background: rgba(255, 255, 255, 0.5);
+            color: #0ea5e9;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-family: 'Cairo', sans-serif;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.2);
+        }
+
+        .btn-start:hover {
+            background: #0ea5e9;
+            color: white;
+            box-shadow: 0 15px 40px rgba(14, 165, 233, 0.5);
+            transform: scale(1.05) translateY(-5px);
+        }
+
+        /* The backward-spinning analog clock */
+        .analog-clock-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 8px solid rgba(14, 165, 233, 0.3);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 50px rgba(14, 165, 233, 0.3), inset 0 0 20px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clock-hand-hour {
+            position: absolute;
+            width: 6px;
+            height: 50px;
+            background-color: #be185d;
+            border-radius: 6px;
+            bottom: 50%;
+            left: calc(50% - 3px);
+            transform-origin: bottom;
+        }
+
+        .clock-hand-minute {
+            position: absolute;
+            width: 4px;
+            height: 70px;
+            background-color: #0ea5e9;
+            border-radius: 4px;
+            bottom: 50%;
+            left: calc(50% - 2px);
+            transform-origin: bottom;
+        }
+
+        .clock-center {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #eab308; /* vibrant yellow */
+            border-radius: 50%;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- IMPORTANT: Put your audio files here -->
+    <!-- 0. The time-travel rewind effect (30 seconds) -->
+    <audio id="rewind-audio" src="rewind-effect.mp3" preload="auto"></audio>
+    
+    <!-- 1. The baby crying and shouting "ولدت الأميرة" -->
+    <audio id="birth-audio" src="birth-announcement.mp3" preload="auto"></audio>
+    
+    <!-- 2. The poetic Arabic voiceover -->
+    <audio id="poem-audio" src="voiceover.mp3" preload="auto"></audio>
+
+    <!-- Canvas for colorful particles and time-warp -->
+    <canvas id="canvas-container"></canvas>
+
+    <!-- UI: Intro Screen -->
+    <div id="intro-screen" class="layer">
+        <button id="start-btn" class="btn-start" dir="ltr">BEGIN JOURNEY</button>
+    </div>
+
+    <!-- UI: Time Machine Clock -->
+    <div id="clock-screen" class="layer hidden-layer" dir="ltr">
+        
+        <!-- The visual spinning clock -->
+        <div id="analog-clock" class="analog-clock-container hidden-layer">
+            <div id="hour-hand" class="clock-hand-hour"></div>
+            <div id="minute-hand" class="clock-hand-minute"></div>
+            <div class="clock-center"></div>
+        </div>
+
+        <div class="text-sm font-bold tracking-widest text-gray-500 mb-2 uppercase">Temporal Coordinates</div>
+        <div id="date-display" class="digital-clock">
+            FRIDAY, JULY 10, <span id="year-display">2026</span>
+        </div>
+    </div>
+
+    <!-- UI: The New Vibrant Poem Container -->
+    <div id="poem-screen" class="layer hidden-layer px-6 md:px-20 max-w-6xl mx-auto">
+        <div id="poem-line-1" class="poem-text hidden">فِي فَجْرِ ذَاكَ الْيَوْمِ، تَبَسَّمَتِ السَّمَاءُ<br>وَرَقصَتْ خُيُوطُ الشَّمْسِ فَرَحاً بِمَقْدَمِكِ</div>
+        <div id="poem-line-2" class="poem-text hidden">أَقْبَلْتِ كَالنَّسْمَةِ الْعَذْبَةِ، تَرْوِينَ ظَمَأَ الأَيَّامِ<br>وَتُزْهِرِينَ فِي الْقُلُوبِ بَسَاتِينَ مِنَ النُّورِ</div>
+        <div id="poem-line-3" class="poem-text hidden">أَمِيرَتِي، يَا سِرَّ الْبَهْجَةِ<br>وَيَا لَحْنَاً تَعْزِفُهُ الأَقْدَارُ عَلَىٰ أَوْتَارِ السَّعَادَةِ</div>
+        <div id="poem-line-4" class="poem-text hidden">سَبْعَةَ عَشَرَ عَاماً مِنَ السِّحْرِ<br>كُلَّ عَامٍ وَأَنْتِ الأَجْمَلُ، وَالأَغْلَىٰ، وَالأَنْقَىٰ</div>
+    </div>
+
+    <!-- UI: Outro Screen -->
+    <div id="outro-screen" class="layer hidden-layer">
+        <div class="text-center">
+            <div class="text-[#be185d] font-['Amiri'] font-bold text-5xl mb-4 text-shadow-md">١٠ يوليو ٢٠٠٩</div>
+            <div class="text-[#0ea5e9] font-['Cairo'] font-bold text-xl tracking-widest uppercase mb-8">The Royal Origin</div>
+            <div class="mt-8 text-[#4c1d95] font-['Amiri'] text-4xl font-bold bg-white/40 px-8 py-4 rounded-full backdrop-blur-sm border border-white/50 shadow-xl">
+                أنتِ أميرتي
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /** 
+         * TIMING CONFIGURATION
+         * 1. BIRTH_AUDIO_DURATION: How long is the screaming/shouting audio? (in milliseconds)
+         *    We wait for this to finish before starting the poem.
+         */
+        const BIRTH_AUDIO_DURATION = 30000; // Default: 8 seconds. Change this to match your audio!
+
+        /**
+         * 2. POEM_TIMINGS: Each line now stays for 30 seconds.
+         */
+        const POEM_TIMINGS = [
+            { id: '#poem-line-1', timeInSeconds: 1.0 },   // Starts immediately when poem audio starts
+            { id: '#poem-line-2', timeInSeconds: 16.0 },  // 30 seconds later
+            { id: '#poem-line-3', timeInSeconds: 31.0 },  // 30 seconds later
+            { id: '#poem-line-4', timeInSeconds: 46.0 },  // 30 seconds later
+            { id: 'outro', timeInSeconds: 61.0 }         // Outro after the final 30 seconds
+        ];
+
+        // --- 1. CANVAS PARTICLE SYSTEM (Colorful Confetti & Energy) ---
+        const canvas = document.getElementById('canvas-container');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let mouse = { x: null, y: null };
+        
+        let isWarping = false;
+        let isGoldenEra = false;
+
+        // Vibrant colors for the energetic theme
+        const particleColors = ['#ec4899', '#eab308', '#06b6d4', '#8b5cf6', '#f43f5e'];
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.z = Math.random() * width; 
+            }
+            
+            reset() {
+                this.x = (Math.random() - 0.5) * width;
+                this.y = (Math.random() - 0.5) * height;
+                this.size = Math.random() * 4 + 1;
+                this.speed = Math.random() * 1 + 0.2;
+                this.angle = Math.random() * Math.PI * 2;
+                this.color = particleColors[Math.floor(Math.random() * particleColors.length)];
+            }
+
+            update() {
+                if (isWarping) {
+                    // Fast counter-clockwise time warp moving towards viewer
+                    this.z -= 25; 
+                    this.angle -= 0.05; // Spin effect
+                    
+                    if (this.z <= 0) {
+                        this.z = width;
+                        this.x = (Math.random() - 0.5) * width;
+                        this.y = (Math.random() - 0.5) * height;
+                    }
+                } else if (isGoldenEra) {
+                    // Floating magical colorful petals/confetti
+                    this.angle += 0.02 * this.speed;
+                    this.x += Math.cos(this.angle) * 1.5;
+                    this.y += Math.sin(this.angle) * 1.5 + 0.5; // slight downward float
+
+                    // Mouse interaction
+                    if (mouse.x != null) {
+                        let dx = mouse.x - (this.x + width/2);
+                        let dy = mouse.y - (this.y + height/2);
+                        let distance = Math.sqrt(dx*dx + dy*dy);
+                        if (distance < 150) {
+                            this.x -= dx * 0.08;
+                            this.y -= dy * 0.08;
+                        }
+                    }
+
+                    // Loop around screen smoothly
+                    if(this.x > width/2) this.x = -width/2;
+                    if(this.x < -width/2) this.x = width/2;
+                    if(this.y > height/2) this.y = -height/2;
+                    if(this.y < -height/2) this.y = height/2;
+                }
+            }
+
+            draw() {
+                let drawX, drawY, drawSize;
+                
+                if (isWarping) {
+                    // 3D energetic light streaks
+                    let perspective = width / this.z;
+                    drawX = (this.x * Math.cos(this.angle) - this.y * Math.sin(this.angle)) * perspective + width / 2;
+                    drawY = (this.x * Math.sin(this.angle) + this.y * Math.cos(this.angle)) * perspective + height / 2;
+                    drawSize = this.size * perspective;
+                    
+                    let prevZ = this.z + 25;
+                    let prevPerspective = width / prevZ;
+                    let prevX = (this.x * Math.cos(this.angle+0.05) - this.y * Math.sin(this.angle+0.05)) * prevPerspective + width / 2;
+                    let prevY = (this.x * Math.sin(this.angle+0.05) + this.y * Math.cos(this.angle+0.05)) * prevPerspective + height / 2;
+
+                    ctx.beginPath();
+                    ctx.moveTo(prevX, prevY);
+                    ctx.lineTo(drawX, drawY);
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = drawSize;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                } else if (isGoldenEra) {
+                    // Draw vibrant petals
+                    drawX = this.x + width / 2;
+                    drawY = this.y + height / 2;
+                    ctx.beginPath();
+                    ctx.arc(drawX, drawY, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = this.color;
+                    ctx.fill();
+                    ctx.shadowBlur = 0; // reset
+                }
+            }
+        }
+
+        for (let i = 0; i < 250; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateCanvas() {
+            // Light, energetic background clears
+            if (isWarping) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Creates motion blur
+                ctx.fillRect(0, 0, width, height);
+            } else {
+                ctx.clearRect(0, 0, width, height);
+            }
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        
+        const startBtn = document.getElementById('start-btn');
+        const introScreen = document.getElementById('intro-screen');
+        const clockScreen = document.getElementById('clock-screen');
+        const analogClock = document.getElementById('analog-clock');
+        const yearDisplay = document.getElementById('year-display');
+        const dateDisplay = document.getElementById('date-display');
+        const poemScreen = document.getElementById('poem-screen');
+        const outroScreen = document.getElementById('outro-screen');
+        
+        const rewindAudio = document.getElementById('rewind-audio');
+        const birthAudio = document.getElementById('birth-audio');
+        const poemAudio = document.getElementById('poem-audio');
+
+        let currentYearObj = { year: 2026 };
+
+        startBtn.addEventListener('click', () => {
+            // Bypass audio policies by attempting to unlock all audios instantly
+            rewindAudio.play().then(() => rewindAudio.pause()).catch(e => console.log("Rewind Audio not found yet."));
+            birthAudio.play().then(() => birthAudio.pause()).catch(e => console.log("Birth Audio not found yet."));
+            poemAudio.play().then(() => poemAudio.pause()).catch(e => console.log("Poem Audio not found yet."));
+            
+            // Fade out Intro
+            gsap.to(introScreen, { opacity: 0, duration: 1, onComplete: () => {
+                introScreen.classList.add('hidden-layer');
+                clockScreen.classList.remove('hidden-layer');
+                gsap.to(clockScreen, { opacity: 1, duration: 1, onComplete: startRewind });
+            }});
+        });
+
+        function startRewind() {
+            isWarping = true;
+            
+            // Play the rewind audio effect
+            try {
+                rewindAudio.currentTime = 0;
+                rewindAudio.play();
+            } catch(e) {}
+            
+            // Show and spin the analog clock backwards rapidly
+            analogClock.classList.remove('hidden-layer');
+            gsap.fromTo(analogClock, {opacity: 0, scale: 0.5}, {opacity: 1, scale: 1, duration: 1});
+            
+            // Counter-clockwise rapid rotation for 30 seconds (matches your audio duration)
+            gsap.to("#minute-hand", { rotation: -360 * 60, duration: 30, ease: "power1.inOut" });
+            gsap.to("#hour-hand", { rotation: -360 * 5, duration: 30, ease: "power1.inOut" });
+
+            // The Time Machine Rewind (Now takes 30 Seconds)
+            gsap.to(currentYearObj, {
+                year: 2009,
+                duration: 30, 
+                ease: "power2.inOut",
+                onUpdate: () => {
+                    yearDisplay.innerText = Math.floor(currentYearObj.year);
+                    // Add energetic shake effect as speed increases
+                    let shake = Math.random() * 6 - 3;
+                    clockScreen.style.transform = `translate(${shake}px, ${shake}px)`;
+                },
+                onComplete: landIn2009
+            });
+        }
+
+        function landIn2009() {
+            isWarping = false;
+            
+            // Stop rewind audio if it hasn't ended naturally
+            try {
+                rewindAudio.pause();
+            } catch(e) {}
+
+            isGoldenEra = true;
+            document.body.classList.add('golden-era');
+            clockScreen.style.transform = `translate(0px, 0px)`;
+            dateDisplay.classList.add('golden');
+
+            // Bright flash explosion of energy
+            let flash = document.createElement('div');
+            flash.style.position = 'absolute';
+            flash.style.inset = '0';
+            flash.style.backgroundColor = '#ffffff';
+            flash.style.zIndex = '999';
+            flash.style.pointerEvents = 'none';
+            document.body.appendChild(flash);
+            
+            gsap.fromTo(flash, { opacity: 1 }, { opacity: 0, duration: 2.5, onComplete: () => flash.remove() });
+
+            // 1. Play the screaming/shouting birth announcement audio
+            try {
+                birthAudio.currentTime = 0;
+                birthAudio.play();
+            } catch(e) {}
+
+            // Fade out clock
+            gsap.to(clockScreen, { opacity: 0, duration: 2, delay: 1, onComplete: () => {
+                clockScreen.classList.add('hidden-layer');
+            }});
+
+            // 2. Wait for the birth audio to finish, THEN start the poem
+            setTimeout(() => {
+                startPoem();
+            }, BIRTH_AUDIO_DURATION);
+        }
+
+        function startPoem() {
+            poemScreen.classList.remove('hidden-layer');
+            gsap.to(poemScreen, { opacity: 1, duration: 1 });
+            
+            // Play the poetic voiceover
+            try {
+                poemAudio.currentTime = 0;
+                poemAudio.play();
+            } catch(e) {}
+
+            let currentLine = null;
+
+            // Sequence the verses based on POEM_TIMINGS (30 seconds each)
+            POEM_TIMINGS.forEach(timing => {
+                setTimeout(() => {
+                    // Hide previous line gracefully
+                    if(currentLine) {
+                        gsap.to(currentLine, { opacity: 0, scale: 1.1, duration: 2, onComplete: function(){ this.targets()[0].style.display = 'none'; } });
+                    }
+
+                    if(timing.id === 'outro') {
+                        showOutro();
+                    } else {
+                        // Show new line
+                        let lineEl = document.querySelector(timing.id);
+                        lineEl.classList.remove('hidden');
+                        lineEl.style.display = 'block';
+                        currentLine = lineEl;
+                        
+                        // Beautiful elegant text reveal
+                        gsap.fromTo(lineEl, 
+                            { opacity: 0, y: 40, filter: 'blur(10px)' }, 
+                            { opacity: 1, y: 0, filter: 'blur(0px)', duration: 3, ease: "power2.out" }
+                        );
+                    }
+                }, timing.timeInSeconds * 1000);
+            });
+        }
+
+        function showOutro() {
+            gsap.to(poemScreen, { opacity: 0, duration: 2, onComplete: () => {
+                poemScreen.classList.add('hidden-layer');
+                outroScreen.classList.remove('hidden-layer');
+                
+                // Animate outro elements
+                gsap.fromTo(outroScreen, 
+                    { opacity: 0, y: 50 }, 
+                    { opacity: 1, y: 0, duration: 3, ease: "back.out(1.7)" }
+                );
+            }});
+        }
+    </script>
+</body>
+</html>
